@@ -57,7 +57,6 @@ class MainViewModel(application: Application) : AndroidViewModel(
         val payload = JSONObject()
         barcode.rawValue?.also { it ->
             payload.put("rawUTF8", it)
-            usbErrorText.value = it
         }
         barcode.rawBytes?.also { it ->
             val encoded = Base64.encodeToString(it, Base64.DEFAULT)

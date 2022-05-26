@@ -19,8 +19,13 @@ class UsbLayer (private val usbManager: UsbManager) {
 
     suspend fun send(out: String) {
         return withContext(Dispatchers.IO) {
-            outStream?.write(out.toByteArray())
-            outStream?.write("\n".toByteArray())
+            val outBytes = out.toByteArray()
+            val lenHeader = ByteArray(2)
+            lenHeader[0] = outBytes.size.and(0xff00).shr(8).toByte()
+            lenHeader[1] = outBytes.size.and(0x00ff).toByte()
+
+            outStream?.write(lenHeader)
+            outStream?.write(outBytes)
             outStream?.flush()
         }
     }
