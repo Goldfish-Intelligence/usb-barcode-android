@@ -39,29 +39,37 @@ class MainActivity : ComponentActivity() {
                 android.Manifest.permission.CAMERA
             )
 
-            when (cameraPermissionState.status) {
-                is PermissionStatus.Denied -> {
-                    Column {
+            Column {
+                when (cameraPermissionState.status) {
+                    is PermissionStatus.Denied -> {
                         Text("Hard to read barcodes if you are blind.\nGimme access human.")
                         Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
                             Text("Request permission")
                         }
                     }
-                }
-                PermissionStatus.Granted -> {
-                    val usbError = viewModel.getUsbErrorText()
-                    when (usbError.value) {
-                        null -> {
-                            val isCooldown = viewModel.getInCooldown()
-                            if (isCooldown.value) {
-                                Box(modifier = Modifier.background(Color.Green).alpha(0.4f).fillMaxSize())
+                    PermissionStatus.Granted -> {
+                        val usbError = viewModel.getUsbErrorText()
+                        when (usbError.value) {
+                            null -> {
+                                Box {
+                                    val isCooldown = viewModel.getInCooldown()
+                                    if (isCooldown.value) {
+                                        Box(modifier = Modifier
+                                            .background(Color.Green)
+                                            .alpha(0.4f)
+                                            .fillMaxSize())
+                                    }
+                                    BarcodeScanner(onScan = { x -> viewModel.sendBarcode(x) }, isTorchOn = viewModel.getIsTorchOn().value)
+                                }
+                                Button(onClick = { viewModel.toggleTorch() }) {
+                                    Text("Licht an/aus")
+                                }
                             }
-                            BarcodeScanner(onScan = { x -> viewModel.sendBarcode(x) })
-                        }
-                        else -> Column {
-                            Text(usbError.value!!)
-                            Button(onClick = { viewModel.openByEnumerate() }) {
-                                Text("(Re)try USB connect")
+                            else -> {
+                                Text(usbError.value!!)
+                                Button(onClick = { viewModel.openByEnumerate() }) {
+                                    Text("(Re)try USB connect")
+                                }
                             }
                         }
                     }

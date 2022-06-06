@@ -25,8 +25,8 @@ class MainViewModel(application: Application) : AndroidViewModel(
     private val usbLayer = UsbLayer(usbManager)
 
     private val usbErrorText = mutableStateOf<String?>("Not connected to USB")
-
     private val inCooldown = mutableStateOf(false)
+    private val isTorchOn = mutableStateOf(false)
 
     fun getUsbErrorText(): State<String?> {
         return usbErrorText
@@ -34,6 +34,14 @@ class MainViewModel(application: Application) : AndroidViewModel(
 
     fun getInCooldown(): State<Boolean> {
         return inCooldown
+    }
+
+    fun getIsTorchOn(): State<Boolean> {
+        return isTorchOn
+    }
+
+    fun toggleTorch() {
+        isTorchOn.value = !isTorchOn.value
     }
 
     fun openAccessory(usbAccessory: UsbAccessory) {

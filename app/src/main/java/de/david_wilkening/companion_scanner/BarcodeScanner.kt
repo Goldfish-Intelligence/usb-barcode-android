@@ -23,7 +23,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 @Composable
-fun BarcodeScanner(onScan: (Barcode) -> Unit) {
+fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -51,11 +51,12 @@ fun BarcodeScanner(onScan: (Barcode) -> Unit) {
 
         val cameraProvider = context.getCameraProvider()
         cameraProvider.unbindAll()
-        cameraProvider.bindToLifecycle(
+        val cam = cameraProvider.bindToLifecycle(
             lifecycleOwner,
             cameraSelector,
             useCaseGroup
         )
+        cam.cameraControl.enableTorch(isTorchOn)
         preview.setSurfaceProvider(previewView.surfaceProvider)
     }
 
