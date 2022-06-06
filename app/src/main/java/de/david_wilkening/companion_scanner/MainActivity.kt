@@ -7,9 +7,15 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -45,7 +51,13 @@ class MainActivity : ComponentActivity() {
                 PermissionStatus.Granted -> {
                     val usbError = viewModel.getUsbErrorText()
                     when (usbError.value) {
-                        null -> BarcodeScanner(onScan = { x -> viewModel.sendBarcode(x) })
+                        null -> {
+                            val isCooldown = viewModel.getInCooldown()
+                            if (isCooldown.value) {
+                                Box(modifier = Modifier.background(Color.Green).alpha(0.4f).fillMaxSize())
+                            }
+                            BarcodeScanner(onScan = { x -> viewModel.sendBarcode(x) })
+                        }
                         else -> Column {
                             Text(usbError.value!!)
                             Button(onClick = { viewModel.openByEnumerate() }) {

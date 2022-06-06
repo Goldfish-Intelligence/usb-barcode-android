@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
+import android.os.CountDownTimer
 import android.util.Base64
 import android.util.Log
 import androidx.compose.runtime.State
@@ -25,8 +26,14 @@ class MainViewModel(application: Application) : AndroidViewModel(
 
     private val usbErrorText = mutableStateOf<String?>("Not connected to USB")
 
+    private val inCooldown = mutableStateOf(false)
+
     fun getUsbErrorText(): State<String?> {
         return usbErrorText
+    }
+
+    fun getInCooldown(): State<Boolean> {
+        return inCooldown
     }
 
     fun openAccessory(usbAccessory: UsbAccessory) {
@@ -52,7 +59,19 @@ class MainViewModel(application: Application) : AndroidViewModel(
     }
 
     fun sendBarcode(barcode: Barcode) {
-        // TODO: debounce
+        if (inCooldown.value) {
+            return
+        }
+
+        object : CountDownTimer(1500, 1500) {
+            override fun onTick(p0: Long) {
+                return
+            }
+
+            override fun onFinish() {
+                inCooldown.value = false
+            }
+        }.start()
 
         val payload = JSONObject()
         barcode.rawValue?.also { it ->
