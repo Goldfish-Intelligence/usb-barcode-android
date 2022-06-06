@@ -53,7 +53,11 @@ class MainViewModel(application: Application) : AndroidViewModel(
             }
             catch (e: NullPointerException) {
                 Log.e(TAG, "Failed Opening USB accessory ... $e")
-                usbErrorText.value = "Unknown error opening USB communication"
+                usbErrorText.value = "Error opening USB communication: ${e.message}"
+            }
+            catch (e: SecurityException) {
+                Log.e(TAG, "Failed Opening USB accessory ... $e")
+                usbErrorText.value = "Zugriff Verweigert auf USB: ${e.message}"
             }
         }
     }

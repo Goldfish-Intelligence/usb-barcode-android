@@ -66,10 +66,11 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             else -> {
+                                Text("Bitte USB (neu) verbinden")
                                 Text(usbError.value!!)
-                                Button(onClick = { viewModel.openByEnumerate() }) {
-                                    Text("(Re)try USB connect")
-                                }
+                                //Button(onClick = { viewModel.openByEnumerate() }) {
+                                //    Text("(Re)try USB connect")
+                                //}
                             }
                         }
                     }
