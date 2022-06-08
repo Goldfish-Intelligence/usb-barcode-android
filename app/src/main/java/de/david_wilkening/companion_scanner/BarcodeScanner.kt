@@ -40,7 +40,11 @@ fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
         .build()
 
     val previewView = remember { PreviewView(context) }
-    LaunchedEffect(true) {
+
+    // this re-initializes the whole camera on torch toggle
+    // the camera provider could probably be saved outside the LaunchedEffect
+    // totally unrelated: I find it interesting to handle the (physical) torch as part of the UI tree
+    LaunchedEffect(isTorchOn) {
         val viewPort =  ViewPort.Builder(Rational(1, 1), preview.targetRotation).build()
         val useCaseGroup = UseCaseGroup.Builder()
             .addUseCase(preview)

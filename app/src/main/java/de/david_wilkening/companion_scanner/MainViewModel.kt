@@ -42,6 +42,7 @@ class MainViewModel(application: Application) : AndroidViewModel(
 
     fun toggleTorch() {
         isTorchOn.value = !isTorchOn.value
+        Log.d(TAG, "Torch ${isTorchOn.value}")
     }
 
     fun openAccessory(usbAccessory: UsbAccessory) {
