@@ -74,6 +74,7 @@ class MainViewModel(application: Application) : AndroidViewModel(
         if (inCooldown.value) {
             return
         }
+        inCooldown.value = true
 
         object : CountDownTimer(1500, 1500) {
             override fun onTick(p0: Long) {
