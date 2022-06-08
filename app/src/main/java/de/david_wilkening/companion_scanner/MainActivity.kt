@@ -15,7 +15,10 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.zIndex
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -54,9 +57,11 @@ class MainActivity : ComponentActivity() {
                                 Box {
                                     val isCooldown = viewModel.getInCooldown()
                                     if (isCooldown.value) {
+                                        val brush = Brush.horizontalGradient(listOf(Color.Green, Color.Green), 0f, 0f, TileMode.Clamp)
                                         Box(modifier = Modifier
-                                            .background(Color.Green)
+                                            .background(brush, alpha=0.4f)
                                             .alpha(0.4f)
+                                            .zIndex(1f)
                                             .fillMaxSize())
                                     }
                                     BarcodeScanner(onScan = { x -> viewModel.sendBarcode(x) }, isTorchOn = viewModel.getIsTorchOn().value)
