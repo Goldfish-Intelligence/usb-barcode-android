@@ -28,7 +28,7 @@ fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val preview = Preview.Builder().build()
-    val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(640, 640)).build()
+    val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(1024, 1024)).build()
         .also {
             it.setAnalyzer(
                 ContextCompat.getMainExecutor(context),
