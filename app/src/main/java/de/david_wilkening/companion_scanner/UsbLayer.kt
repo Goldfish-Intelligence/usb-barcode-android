@@ -2,18 +2,24 @@ package de.david_wilkening.companion_scanner
 
 import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
+import android.os.ParcelFileDescriptor
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
+import java.lang.Exception
 import java.nio.charset.Charset
 
 class UsbLayer (private val usbManager: UsbManager) {
+    // if ParcelFileDescriptor is not saved in var with the same lifetime as FileOutputStream, the
+    // underlying file descriptor is garbage collected beforehand
+    private var parcelFD: ParcelFileDescriptor? = null
     private var outStream: FileOutputStream? = null
 
     suspend fun openDevice(usbAccessory: UsbAccessory) {
         return withContext(Dispatchers.IO) {
-            val usbFd = usbManager.openAccessory(usbAccessory)!!
-            outStream = FileOutputStream(usbFd.fileDescriptor)
+            parcelFD = usbManager.openAccessory(usbAccessory)!!
+            outStream = FileOutputStream(parcelFD!!.fileDescriptor)
         }
     }
 
