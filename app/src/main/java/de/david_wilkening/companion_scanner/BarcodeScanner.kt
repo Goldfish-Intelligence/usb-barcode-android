@@ -1,14 +1,18 @@
 package de.david_wilkening.companion_scanner
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.ContextWrapper
 import android.util.Log
 import android.util.Rational
 import android.util.Size
+import android.view.WindowManager
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +25,18 @@ import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+
+@Composable
+fun KeepScreenOn() {
+    val context = LocalContext.current
+    DisposableEffect(Unit) {
+        val window = context.findActivity()?.window
+        window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        onDispose {
+            window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        }
+    }
+}
 
 @Composable
 fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
@@ -65,6 +81,7 @@ fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
     }
 
 
+    KeepScreenOn()
     AndroidView({ previewView }) {
 
     }
@@ -100,4 +117,13 @@ suspend fun Context.getCameraProvider(): ProcessCameraProvider = suspendCoroutin
             continuation.resume(cameraProvider.get())
         }, ContextCompat.getMainExecutor(this))
     }
+}
+
+fun Context.findActivity(): Activity? {
+    var context = this
+    while (context is ContextWrapper) {
+        if (context is Activity) return context
+        context = context.baseContext
+    }
+    return null
 }
