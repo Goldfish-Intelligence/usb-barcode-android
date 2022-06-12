@@ -23,6 +23,13 @@ class UsbLayer (private val usbManager: UsbManager) {
         }
     }
 
+    suspend fun disconnect() {
+        return withContext(Dispatchers.IO) {
+            outStream?.close()
+            parcelFD?.close()
+        }
+    }
+
     suspend fun send(out: String) {
         return withContext(Dispatchers.IO) {
             val outBytes = out.toByteArray()

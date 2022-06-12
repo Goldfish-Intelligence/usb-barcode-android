@@ -1,5 +1,6 @@
 package de.david_wilkening.companion_scanner
 
+import android.content.Intent
 import android.hardware.usb.UsbAccessory
 import android.hardware.usb.UsbManager
 import android.os.Bundle
@@ -27,8 +28,8 @@ import com.google.accompanist.permissions.rememberPermissionState
 class MainActivity : ComponentActivity() {
     private val TAG = MainActivity::class.qualifiedName
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onResume() {
+        super.onResume()
 
         val viewModel: MainViewModel by viewModels()
 
@@ -36,13 +37,19 @@ class MainActivity : ComponentActivity() {
             Log.d(TAG, "Received USB intent $it")
             viewModel.openAccessory(it)
         }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val viewModel: MainViewModel by viewModels()
 
         setContent {
             val cameraPermissionState = rememberPermissionState(
                 android.Manifest.permission.CAMERA
             )
 
-            Column {
+            Column(Modifier.background(Color.White)) {
                 when (cameraPermissionState.status) {
                     is PermissionStatus.Denied -> {
                         Text("Hard to read barcodes if you are blind.\nGimme access human.")
@@ -54,12 +61,15 @@ class MainActivity : ComponentActivity() {
                         val usbError = viewModel.getUsbErrorText()
                         when (usbError.value) {
                             null -> {
+                                SystemBroadcastReceiver(UsbManager.ACTION_USB_ACCESSORY_DETACHED) { intent ->
+                                    viewModel.disconnectAccessory()
+                                }
                                 Box {
                                     val isCooldown = viewModel.getInCooldown()
                                     if (isCooldown.value) {
                                         val brush = Brush.horizontalGradient(listOf(Color.Green, Color.Green), 0f, 0f, TileMode.Clamp)
                                         Box(modifier = Modifier
-                                            .background(brush, alpha=0.4f)
+                                            .background(brush, alpha = 0.4f)
                                             .alpha(0.4f)
                                             .zIndex(1f)
                                             .fillMaxSize())

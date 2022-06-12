@@ -63,6 +63,14 @@ class MainViewModel(application: Application) : AndroidViewModel(
         }
     }
 
+    fun disconnectAccessory() {
+        Log.e(TAG, "Disconnected USB accessory")
+        viewModelScope.launch {
+            usbLayer.disconnect()
+        }
+        usbErrorText.value = "USB Verbindung wurde getrennt"
+    }
+
     fun openByEnumerate() {
         val accessoryList = usbManager.accessoryList
         when (val accessory = accessoryList?.first()) {

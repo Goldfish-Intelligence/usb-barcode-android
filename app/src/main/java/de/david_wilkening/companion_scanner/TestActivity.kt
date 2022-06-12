@@ -1,9 +1,6 @@
 package de.david_wilkening.companion_scanner
 
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,16 +10,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.TileMode
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.zIndex
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -39,7 +31,9 @@ class TestActivity : ComponentActivity() {
                 android.Manifest.permission.CAMERA
             )
 
-            Column {
+            Column(Modifier.background(Color.White)) {
+                Text("This only the testing mode. Please connect USB for production use.", modifier = Modifier.background(
+                    Color.Yellow))
                 when (cameraPermissionState.status) {
                     is PermissionStatus.Denied -> {
                         Text("Hard to read barcodes if you are blind.\nGimme access human.")
@@ -72,35 +66,6 @@ class TestActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun SystemBroadcastReceiver(
-    systemAction: String,
-    onSystemEvent: (intent: Intent?) -> Unit
-) {
-    // Grab the current context in this part of the UI tree
-    val context = LocalContext.current
-
-    // Safely use the latest onSystemEvent lambda passed to the function
-    val currentOnSystemEvent by rememberUpdatedState(onSystemEvent)
-
-    // If either context or systemAction changes, unregister and register again
-    DisposableEffect(context, systemAction) {
-        val intentFilter = IntentFilter(systemAction)
-        val broadcast = object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                currentOnSystemEvent(intent)
-            }
-        }
-
-        context.registerReceiver(broadcast, intentFilter)
-
-        // When the effect leaves the Composition, remove the callback
-        onDispose {
-            context.unregisterReceiver(broadcast)
         }
     }
 }
