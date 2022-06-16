@@ -4,10 +4,13 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.hardware.camera2.CaptureRequest
 import android.util.Log
+import android.util.Range
 import android.util.Rational
 import android.util.Size
 import android.view.WindowManager
+import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -23,6 +26,10 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -38,13 +45,18 @@ fun KeepScreenOn() {
     }
 }
 
+@SuppressLint("UnsafeOptInUsageError")
 @Composable
 fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val preview = Preview.Builder().build()
-    val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(1024, 1024)).build()
+    val previewBuilder = Preview.Builder()
+    var camera2Extender = Camera2Interop.Extender(previewBuilder).setCaptureRequestOption(
+        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(24,24)
+    )
+    val preview = previewBuilder.build()
+    val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(1200, 1200)).build()
         .also {
             it.setAnalyzer(
                 ContextCompat.getMainExecutor(context),
@@ -89,8 +101,11 @@ fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
 
 private class BarcodeImageAnalyzer(val onScan: (Barcode) -> Unit) : ImageAnalysis.Analyzer {
 
+    var currentTimestamp: Long = 0
+
     @SuppressLint("UnsafeOptInUsageError")
     override fun analyze(imageProxy: ImageProxy) {
+        currentTimestamp = System.currentTimeMillis()
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
             val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
@@ -106,7 +121,12 @@ private class BarcodeImageAnalyzer(val onScan: (Barcode) -> Unit) : ImageAnalysi
                     }
                 }
             }
-            result.addOnCompleteListener {imageProxy.close()};
+            result.addOnCompleteListener {
+                CoroutineScope(Dispatchers.IO).launch {
+                    delay(1500 - (System.currentTimeMillis() - currentTimestamp))
+                    imageProxy.close()
+                }
+            };
         }
     }
 }
