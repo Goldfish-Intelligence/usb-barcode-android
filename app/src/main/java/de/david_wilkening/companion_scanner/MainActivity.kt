@@ -49,12 +49,12 @@ class MainActivity : ComponentActivity() {
                 android.Manifest.permission.CAMERA
             )
 
-            Column(Modifier.background(Color.White)) {
+            Column(Modifier.background(Color.Black).fillMaxSize()) {
                 when (cameraPermissionState.status) {
                     is PermissionStatus.Denied -> {
-                        Text("Hard to read barcodes if you are blind.\nGimme access human.")
+                        Text("Hard to read barcodes if you are blind.\nGimme access human.", color = Color.White)
                         Button(onClick = { cameraPermissionState.launchPermissionRequest() }) {
-                            Text("Request permission")
+                            Text("Request permission", color = Color.White)
                         }
                     }
                     PermissionStatus.Granted -> {
@@ -81,8 +81,8 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                             else -> {
-                                Text("Bitte USB (neu) verbinden")
-                                Text(usbError.value!!)
+                                Text("Bitte USB (neu) verbinden", color = Color.White)
+                                Text(usbError.value!!, color = Color.White)
                                 //Button(onClick = { viewModel.openByEnumerate() }) {
                                 //    Text("(Re)try USB connect")
                                 //}
