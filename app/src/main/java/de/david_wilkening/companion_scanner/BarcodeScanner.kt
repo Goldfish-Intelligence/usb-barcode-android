@@ -52,11 +52,11 @@ fun BarcodeScanner(onScan: (Barcode) -> Unit, isTorchOn: Boolean) {
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val previewBuilder = Preview.Builder()
-    var camera2Extender = Camera2Interop.Extender(previewBuilder).setCaptureRequestOption(
-        CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(24,24)
-    )
+    //var camera2Extender = Camera2Interop.Extender(previewBuilder).setCaptureRequestOption(
+        //CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, Range(30,30)
+    //)
     val preview = previewBuilder.build()
-    val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(1200, 1200)).build()
+    val imageAnalysis = ImageAnalysis.Builder().setTargetResolution(Size(800, 800)).build()
         .also {
             it.setAnalyzer(
                 ContextCompat.getMainExecutor(context),
